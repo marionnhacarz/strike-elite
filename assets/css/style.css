@@ -491,6 +491,8 @@ section.title-row h2 {
   height: 62px;
   object-fit: contain;
   display: block;
+  transform: scale(2);
+  transform-origin: left center;
 }
 
 .footer-logo {

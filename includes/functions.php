@@ -26,10 +26,12 @@ function is_logged_in() {
 
 function current_user() {
     if (!is_logged_in()) return null;
+
     return [
         'id'       => $_SESSION['user_id'],
         'username' => $_SESSION['username'],
         'email'    => $_SESSION['email'],
+        'role'     => $_SESSION['role'] ?? 'client',
     ];
 }
 
@@ -39,6 +41,30 @@ function require_login($redirectTo = 'login.php') {
         header('Location: ' . $redirectTo);
         exit;
     }
+}
+
+function require_admin() {
+    global $pdo;
+
+    if (!is_logged_in()) {
+        header('Location: ../login.php');
+        exit;
+    }
+
+    // Don't trust the role stored only in the session.
+    // Check the database every time an admin page is opened.
+    $stmt = $pdo->prepare("SELECT role FROM users WHERE id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $role = $stmt->fetchColumn();
+
+    if ($role !== 'admin') {
+        $_SESSION['flash_error'] = 'You do not have permission to access the admin area.';
+        header('Location: ../account.php');
+        exit;
+    }
+
+    // Keep the current session role synchronized.
+    $_SESSION['role'] = $role;
 }
 
 // ----- flash messages -----

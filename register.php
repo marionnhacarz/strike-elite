@@ -4,7 +4,13 @@ require_once __DIR__ . '/includes/functions.php';
 $pageTitle = 'Create Account';
 
 if (is_logged_in()) {
-    header('Location: account.php');
+
+    if (($_SESSION['role'] ?? 'client') === 'admin') {
+        header('Location: admin/index.php');
+    } else {
+        header('Location: account.php');
+    }
+
     exit;
 }
 
@@ -32,12 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
-        $stmt->execute([$username, $email, $hash]);
+        $stmt = $pdo->prepare(
+    "INSERT INTO users (username, email, password_hash, role)
+     VALUES (?, ?, ?, 'client')"
+);
 
-        $_SESSION['user_id']  = $pdo->lastInsertId();
-        $_SESSION['username'] = $username;
-        $_SESSION['email']    = $email;
+$stmt->execute([$username, $email, $hash]);
+
+        session_regenerate_id(true);
+
+$_SESSION['user_id']  = $pdo->lastInsertId();
+$_SESSION['username'] = $username;
+$_SESSION['email']    = $email;
+$_SESSION['role']     = 'client';
 
         flash('flash_success', 'Welcome to Strike Elite, ' . $username . '!');
         header('Location: index.php');

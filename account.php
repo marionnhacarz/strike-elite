@@ -4,6 +4,11 @@ require_once __DIR__ . '/includes/functions.php';
 $pageTitle = 'My Account';
 require_login('login.php');
 
+if (($_SESSION['role'] ?? 'client') === 'admin') {
+    header('Location: admin/index.php');
+    exit;
+}
+
 $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->execute([$_SESSION['user_id']]);
 $orders = $stmt->fetchAll();
