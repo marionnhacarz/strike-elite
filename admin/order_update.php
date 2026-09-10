@@ -4,7 +4,6 @@ require_once __DIR__ . '/../includes/functions.php';
 
 require_admin();
 
-
 /*
 |--------------------------------------------------------------------------
 | ONLY ALLOW POST REQUESTS
@@ -16,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: orders.php');
     exit;
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +30,6 @@ $orderId = filter_input(
 
 $status = $_POST['status'] ?? '';
 
-
 /*
 |--------------------------------------------------------------------------
 | ALLOWED ORDER STATUSES
@@ -44,13 +41,12 @@ $allowedStatuses = [
     'packed',
     'shipped',
     'completed',
-    'cancelled'
+    'cancelled',
 ];
 
-
 if (
-    !$orderId ||
-    !in_array($status, $allowedStatuses, true)
+    ! $orderId ||
+    ! in_array($status, $allowedStatuses, true)
 ) {
 
     $_SESSION['flash_error'] =
@@ -59,7 +55,6 @@ if (
     header('Location: orders.php');
     exit;
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +70,7 @@ $stmt = $pdo->prepare("
 
 $stmt->execute([$orderId]);
 
-if (!$stmt->fetch()) {
+if (! $stmt->fetch()) {
 
     $_SESSION['flash_error'] =
         'Order not found.';
@@ -83,7 +78,6 @@ if (!$stmt->fetch()) {
     header('Location: orders.php');
     exit;
 }
-
 
 /*
 |--------------------------------------------------------------------------
@@ -99,17 +93,15 @@ $stmt = $pdo->prepare("
 
 $stmt->execute([
     $status,
-    $orderId
+    $orderId,
 ]);
 
-
 $_SESSION['flash_success'] =
-    'Order #' .
-    $orderId .
-    ' status updated to ' .
-    ucfirst($status) .
+'Order #' .
+$orderId .
+' status updated to ' .
+ucfirst($status) .
     '.';
-
 
 header(
     'Location: order_view.php?id=' .

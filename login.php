@@ -1,12 +1,12 @@
 <?php
 
-$basePath = '';
+    $basePath = '';
 
-require_once __DIR__ . '/includes/functions.php';
+    require_once __DIR__ . '/includes/functions.php';
 
-$pageTitle = 'Login';
+    $pageTitle = 'Login';
 
-if (is_logged_in()) {
+    if (is_logged_in()) {
 
     if (($_SESSION['role'] ?? 'client') === 'admin') {
         header('Location: admin/index.php');
@@ -15,14 +15,14 @@ if (is_logged_in()) {
     }
 
     exit;
-}
+    }
 
-$errors = [];
-$email = '';
+    $errors = [];
+    $email  = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $email = trim($_POST['email'] ?? '');
+    $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
     if ($email === '' || $password === '') {
@@ -51,10 +51,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             session_regenerate_id(true);
 
-            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_id']  = $user['id'];
             $_SESSION['username'] = $user['username'];
-            $_SESSION['email'] = $user['email'];
-            $_SESSION['role'] = $user['role'];
+            $_SESSION['email']    = $user['email'];
+            $_SESSION['role']     = $user['role'];
 
             flash(
                 'flash_success',
@@ -77,9 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Invalid email or password.';
         }
     }
-}
+    }
 
-require_once __DIR__ . '/includes/header.php';
+    require_once __DIR__ . '/includes/header.php';
 
 ?>
 
@@ -94,7 +94,7 @@ require_once __DIR__ . '/includes/header.php';
     <?php foreach ($errors as $error): ?>
 
         <div class="form-error">
-            <?= h($error) ?>
+            <?php echo h($error) ?>
         </div>
 
     <?php endforeach; ?>
@@ -108,7 +108,7 @@ require_once __DIR__ . '/includes/header.php';
             <input
                 type="email"
                 name="email"
-                value="<?= h($email) ?>"
+                value="<?php echo h($email) ?>"
                 required
             >
 

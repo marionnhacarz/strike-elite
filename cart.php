@@ -1,13 +1,13 @@
 <?php
-$basePath = '';
-require_once __DIR__ . '/includes/functions.php';
-$pageTitle = 'Your Cart';
+    $basePath = '';
+    require_once __DIR__ . '/includes/functions.php';
+    $pageTitle = 'Your Cart';
 
-// this page handles both quantity updates and item removal from the same form
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // this page handles both quantity updates and item removal from the same form
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update'])) {
         foreach ($_POST['qty'] as $productId => $qty) {
-            cart_set($productId, (int)$qty);
+            cart_set($productId, (int) $qty);
         }
         flash('flash_success', 'Cart updated.');
     } elseif (isset($_POST['remove_id'])) {
@@ -16,12 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     header('Location: cart.php');
     exit;
-}
+    }
 
-$items = cart_details($pdo);
-$total = cart_total($pdo);
+    $items = cart_details($pdo);
+    $total = cart_total($pdo);
 
-require_once __DIR__ . '/includes/header.php';
+    require_once __DIR__ . '/includes/header.php';
 ?>
 <div class="container">
   <div class="page-heading"><h1>Your Cart</h1></div>
@@ -41,15 +41,15 @@ require_once __DIR__ . '/includes/header.php';
             <tr>
               <td>
                 <div class="cart-product">
-                  <img src="<?= product_image($prod['image']) ?>" alt="<?= h($prod['name']) ?>">
-                  <span><?= h($prod['name']) ?></span>
+                  <img src="<?php echo product_image($prod['image']) ?>" alt="<?php echo h($prod['name']) ?>">
+                  <span><?php echo h($prod['name']) ?></span>
                 </div>
               </td>
-              <td><?= price($prod['price']) ?></td>
-              <td><input type="number" class="qty-input" name="qty[<?= $prod['id'] ?>]" value="<?= $row['qty'] ?>" min="0" max="<?= $prod['stock'] ?>"></td>
-              <td><?= price($row['subtotal']) ?></td>
+              <td><?php echo price($prod['price']) ?></td>
+              <td><input type="number" class="qty-input" name="qty[<?php echo $prod['id'] ?>]" value="<?php echo $row['qty'] ?>" min="0" max="<?php echo $prod['stock'] ?>"></td>
+              <td><?php echo price($row['subtotal']) ?></td>
               <td>
-                <button type="submit" form="remove-<?= $prod['id'] ?>" class="remove-link" style="background:none;border:none;">Remove</button>
+                <button type="submit" form="remove-<?php echo $prod['id'] ?>" class="remove-link" style="background:none;border:none;">Remove</button>
               </td>
             </tr>
           <?php endforeach; ?>
@@ -59,15 +59,15 @@ require_once __DIR__ . '/includes/header.php';
     </form>
 
     <?php foreach ($items as $row): $prod = $row['product']; ?>
-      <form id="remove-<?= $prod['id'] ?>" method="POST" style="display:none;">
-        <input type="hidden" name="remove_id" value="<?= $prod['id'] ?>">
+      <form id="remove-<?php echo $prod['id'] ?>" method="POST" style="display:none;">
+        <input type="hidden" name="remove_id" value="<?php echo $prod['id'] ?>">
       </form>
     <?php endforeach; ?>
 
     <div class="cart-summary">
-      <div class="row"><span>Subtotal</span><span><?= price($total) ?></span></div>
+      <div class="row"><span>Subtotal</span><span><?php echo price($total) ?></span></div>
       <div class="row"><span>Shipping</span><span>Calculated at checkout</span></div>
-      <div class="row total"><span>Total</span><span><?= price($total) ?></span></div>
+      <div class="row total"><span>Total</span><span><?php echo price($total) ?></span></div>
       <a href="checkout.php" class="btn btn-primary btn-block" style="margin-top:16px;">Proceed to Checkout</a>
     </div>
   <?php endif; ?>

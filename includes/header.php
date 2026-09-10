@@ -1,12 +1,10 @@
 <?php
 
-require_once __DIR__ . '/functions.php';
+    require_once __DIR__ . '/functions.php';
 
-$currentPage = basename($_SERVER['PHP_SELF']);
+    $currentPage = basename($_SERVER['PHP_SELF']);
 
-// Pages inside subfolders such as /pages/ and /admin/
-// can set $basePath = '../' before including this header.
-$bp = $basePath ?? '';
+    $bp = $basePath ?? '';
 
 ?>
 <!DOCTYPE html>
@@ -21,9 +19,9 @@ $bp = $basePath ?? '';
   >
 
   <title>
-    <?= isset($pageTitle)
-      ? h($pageTitle) . ' | Strike Elite'
-      : 'Strike Elite | Play Like a Champion'
+    <?php echo isset($pageTitle)
+            ? h($pageTitle) . ' | Strike Elite'
+            : 'Strike Elite | Play Like a Champion';
     ?>
   </title>
 
@@ -39,7 +37,7 @@ $bp = $basePath ?? '';
 
   <link
     rel="stylesheet"
-    href="<?= $bp ?>assets/css/style.css"
+    href="<?php echo $bp ?>assets/css/style.css"
   >
 
 </head>
@@ -55,12 +53,12 @@ $bp = $basePath ?? '';
     ========================== -->
 
     <a
-      href="<?= $bp ?>index.php"
+      href="<?php echo $bp ?>index.php"
       class="logo"
     >
 
       <img
-        src="<?= $bp ?>assets/images/header logo.png"
+        src="<?php echo $bp ?>assets/images/header logo.png"
         alt="Strike Elite"
         class="site-logo"
       >
@@ -75,29 +73,29 @@ $bp = $basePath ?? '';
     <nav class="main-nav">
 
       <a
-        href="<?= $bp ?>index.php"
-        class="<?= $currentPage === 'index.php' ? 'active' : '' ?>"
+        href="<?php echo $bp ?>index.php"
+        class="<?php echo $currentPage === 'index.php' ? 'active' : '' ?>"
       >
         Home
       </a>
 
-      <a href="<?= $bp ?>products.php?category=soccer-boots">
+      <a href="<?php echo $bp ?>products.php?category=soccer-boots">
         Soccer Boots
       </a>
 
-      <a href="<?= $bp ?>products.php?category=jersey">
+      <a href="<?php echo $bp ?>products.php?category=jersey">
         Jersey
       </a>
 
-      <a href="<?= $bp ?>products.php?category=equipment">
+      <a href="<?php echo $bp ?>products.php?category=equipment">
         Equipment
       </a>
 
-      <a href="<?= $bp ?>pages/about.php">
+      <a href="<?php echo $bp ?>pages/about.php">
         About
       </a>
 
-      <a href="<?= $bp ?>pages/contact.php">
+      <a href="<?php echo $bp ?>pages/contact.php">
         Contact
       </a>
 
@@ -117,7 +115,7 @@ $bp = $basePath ?? '';
 
       <form
         class="search-form"
-        action="<?= $bp ?>products.php"
+        action="<?php echo $bp ?>products.php"
         method="GET"
       >
 
@@ -125,7 +123,7 @@ $bp = $basePath ?? '';
           type="text"
           name="q"
           placeholder="Search products..."
-          value="<?= h($_GET['q'] ?? '') ?>"
+          value="<?php echo h($_GET['q'] ?? '') ?>"
         >
 
         <button
@@ -176,7 +174,7 @@ $bp = $basePath ?? '';
           <?php if (($_SESSION['role'] ?? 'client') === 'admin'): ?>
 
             <a
-              href="<?= $bp ?>admin/index.php"
+              href="<?php echo $bp ?>admin/index.php"
               class="icon-link"
               title="Admin Dashboard"
             >
@@ -203,7 +201,7 @@ $bp = $basePath ?? '';
               </svg>
 
               <span class="account-name">
-                Admin: <?= h(current_user()['username']) ?>
+                Admin: <?php echo h(current_user()['username']) ?>
               </span>
 
             </a>
@@ -214,7 +212,7 @@ $bp = $basePath ?? '';
           <?php else: ?>
 
             <a
-              href="<?= $bp ?>account.php"
+              href="<?php echo $bp ?>account.php"
               class="icon-link"
               title="My Account"
             >
@@ -241,7 +239,7 @@ $bp = $basePath ?? '';
               </svg>
 
               <span class="account-name">
-                <?= h(current_user()['username']) ?>
+                <?php echo h(current_user()['username']) ?>
               </span>
 
             </a>
@@ -252,7 +250,7 @@ $bp = $basePath ?? '';
           <!-- LOGOUT -->
 
           <a
-            href="<?= $bp ?>logout.php"
+            href="<?php echo $bp ?>logout.php"
             class="icon-link small-link"
             title="Logout"
           >
@@ -269,7 +267,7 @@ $bp = $basePath ?? '';
       <?php else: ?>
 
         <a
-          href="<?= $bp ?>login.php"
+          href="<?php echo $bp ?>login.php"
           class="icon-link"
           title="Login"
         >
@@ -305,7 +303,7 @@ $bp = $basePath ?? '';
       ========================== -->
 
       <a
-        href="<?= $bp ?>cart.php"
+        href="<?php echo $bp ?>cart.php"
         class="icon-link cart-link"
         title="Cart"
       >
@@ -338,7 +336,7 @@ $bp = $basePath ?? '';
         </svg>
 
         <span class="cart-count">
-          <?= cart_count() ?>
+          <?php echo cart_count() ?>
         </span>
 
       </a>
@@ -357,7 +355,7 @@ $bp = $basePath ?? '';
 <?php if ($msg = flash('flash_success')): ?>
 
   <div class="flash flash-success container">
-    <?= h($msg) ?>
+    <?php echo h($msg) ?>
   </div>
 
 <?php endif; ?>
@@ -370,7 +368,7 @@ $bp = $basePath ?? '';
 <?php if ($msg = flash('flash_error')): ?>
 
   <div class="flash flash-error container">
-    <?= h($msg) ?>
+    <?php echo h($msg) ?>
   </div>
 
 <?php endif; ?>

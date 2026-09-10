@@ -1,8 +1,8 @@
 <?php
-$basePath = '../';
-require_once __DIR__ . '/../includes/functions.php';
-$pageTitle = 'About Us';
-require_once __DIR__ . '/../includes/header.php';
+    $basePath = '../';
+    require_once __DIR__ . '/../includes/functions.php';
+    $pageTitle = 'About Us';
+    require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="container">
   <div class="static-page">

@@ -1,20 +1,20 @@
 <?php
 
-$basePath = '../';
+    $basePath = '../';
 
-require_once __DIR__ . '/../includes/functions.php';
+    require_once __DIR__ . '/../includes/functions.php';
 
-require_admin();
+    require_admin();
 
-$pageTitle = 'Manage Orders';
+    $pageTitle = 'Manage Orders';
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | GET ALL ORDERS
 |--------------------------------------------------------------------------
 */
 
-$stmt = $pdo->query("
+    $stmt = $pdo->query("
     SELECT
         o.id,
         o.total_amount,
@@ -30,9 +30,9 @@ $stmt = $pdo->query("
     ORDER BY o.created_at DESC
 ");
 
-$orders = $stmt->fetchAll();
+    $orders = $stmt->fetchAll();
 
-require_once __DIR__ . '/../includes/header.php';
+    require_once __DIR__ . '/../includes/header.php';
 
 ?>
 
@@ -125,20 +125,20 @@ require_once __DIR__ . '/../includes/header.php';
                     ">
 
                         <td style="padding:12px;">
-                            #<?= (int)$order['id'] ?>
+                            #<?php echo (int)$order['id'] ?>
                         </td>
 
 
                         <td style="padding:12px;">
 
                             <strong>
-                                <?= h($order['shipping_name']) ?>
+                                <?php echo h($order['shipping_name']) ?>
                             </strong>
 
                             <br>
 
                             <small style="color:var(--text-dim);">
-                                <?= h($order['email']) ?>
+                                <?php echo h($order['email']) ?>
                             </small>
 
                         </td>
@@ -146,28 +146,28 @@ require_once __DIR__ . '/../includes/header.php';
 
                         <td style="padding:12px;">
 
-                            <?= h(strtoupper($order['payment_method'])) ?>
+                            <?php echo h(strtoupper($order['payment_method'])) ?>
 
                         </td>
 
 
                         <td style="padding:12px;">
 
-                            <?= price($order['total_amount']) ?>
+                            <?php echo price($order['total_amount']) ?>
 
                         </td>
 
 
                         <td style="padding:12px;">
 
-                            <?= h(ucfirst($order['status'])) ?>
+                            <?php echo h(ucfirst($order['status'])) ?>
 
                         </td>
 
 
                         <td style="padding:12px;">
 
-                            <?= h($order['created_at']) ?>
+                            <?php echo h($order['created_at']) ?>
 
                         </td>
 
@@ -175,7 +175,7 @@ require_once __DIR__ . '/../includes/header.php';
                         <td style="padding:12px;">
 
                             <a
-                                href="order_view.php?id=<?= (int)$order['id'] ?>"
+                                href="order_view.php?id=<?php echo (int)$order['id'] ?>"
                                 class="btn btn-primary"
                             >
                                 View

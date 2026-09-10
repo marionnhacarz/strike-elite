@@ -1,32 +1,32 @@
 <?php
 
-$basePath = '../';
+    $basePath = '../';
 
-require_once __DIR__ . '/../includes/functions.php';
+    require_once __DIR__ . '/../includes/functions.php';
 
-require_admin();
+    require_admin();
 
-$pageTitle = 'Admin Dashboard';
+    $pageTitle = 'Admin Dashboard';
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | BUSINESS STATISTICS
 |--------------------------------------------------------------------------
 */
 
-$totalOrders = (int)$pdo
+    $totalOrders = (int) $pdo
     ->query("SELECT COUNT(*) FROM orders")
     ->fetchColumn();
 
-$processingOrders = (int)$pdo
+    $processingOrders = (int) $pdo
     ->query("SELECT COUNT(*) FROM orders WHERE status = 'processing'")
     ->fetchColumn();
 
-$completedOrders = (int)$pdo
+    $completedOrders = (int) $pdo
     ->query("SELECT COUNT(*) FROM orders WHERE status = 'completed'")
     ->fetchColumn();
 
-$totalRevenue = (float)$pdo
+    $totalRevenue = (float) $pdo
     ->query("
         SELECT COALESCE(SUM(total_amount), 0)
         FROM orders
@@ -34,13 +34,13 @@ $totalRevenue = (float)$pdo
     ")
     ->fetchColumn();
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | RECENT ORDERS
 |--------------------------------------------------------------------------
 */
 
-$stmt = $pdo->query("
+    $stmt = $pdo->query("
     SELECT
         o.id,
         o.total_amount,
@@ -56,9 +56,9 @@ $stmt = $pdo->query("
     LIMIT 5
 ");
 
-$recentOrders = $stmt->fetchAll();
+    $recentOrders = $stmt->fetchAll();
 
-require_once __DIR__ . '/../includes/header.php';
+    require_once __DIR__ . '/../includes/header.php';
 
 ?>
 
@@ -69,7 +69,7 @@ require_once __DIR__ . '/../includes/header.php';
         <h1>Admin Dashboard</h1>
 
         <p style="color:var(--text-dim);">
-            Welcome, <?= h(current_user()['username']) ?>.
+            Welcome, <?php echo h(current_user()['username']) ?>.
             Monitor Strike Elite's orders and sales here.
         </p>
 
@@ -93,7 +93,7 @@ require_once __DIR__ . '/../includes/header.php';
                 font-weight:bold;
                 color:var(--gold);
             ">
-                <?= $totalOrders ?>
+                <?php echo $totalOrders ?>
             </p>
         </div>
 
@@ -106,7 +106,7 @@ require_once __DIR__ . '/../includes/header.php';
                 font-weight:bold;
                 color:var(--gold);
             ">
-                <?= $processingOrders ?>
+                <?php echo $processingOrders ?>
             </p>
         </div>
 
@@ -119,7 +119,7 @@ require_once __DIR__ . '/../includes/header.php';
                 font-weight:bold;
                 color:var(--gold);
             ">
-                <?= $completedOrders ?>
+                <?php echo $completedOrders ?>
             </p>
         </div>
 
@@ -132,7 +132,7 @@ require_once __DIR__ . '/../includes/header.php';
                 font-weight:bold;
                 color:var(--gold);
             ">
-                <?= price($totalRevenue) ?>
+                <?php echo price($totalRevenue) ?>
             </p>
         </div>
 
@@ -231,37 +231,37 @@ require_once __DIR__ . '/../includes/header.php';
                         ">
 
                             <td style="padding:12px;">
-                                #<?= (int)$order['id'] ?>
+                                #<?php echo (int)$order['id'] ?>
                             </td>
 
                             <td style="padding:12px;">
 
-                                <?= h($order['shipping_name']) ?>
+                                <?php echo h($order['shipping_name']) ?>
 
                                 <br>
 
                                 <small style="color:var(--text-dim);">
-                                    <?= h($order['email']) ?>
+                                    <?php echo h($order['email']) ?>
                                 </small>
 
                             </td>
 
                             <td style="padding:12px;">
-                                <?= price($order['total_amount']) ?>
+                                <?php echo price($order['total_amount']) ?>
                             </td>
 
                             <td style="padding:12px;">
-                                <?= h(ucfirst($order['status'])) ?>
+                                <?php echo h(ucfirst($order['status'])) ?>
                             </td>
 
                             <td style="padding:12px;">
-                                <?= h($order['created_at']) ?>
+                                <?php echo h($order['created_at']) ?>
                             </td>
 
                             <td style="padding:12px;">
 
                                 <a
-                                    href="order_view.php?id=<?= (int)$order['id'] ?>"
+                                    href="order_view.php?id=<?php echo (int)$order['id'] ?>"
                                     class="btn"
                                 >
                                     View

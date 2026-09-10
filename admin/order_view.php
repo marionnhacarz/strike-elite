@@ -1,39 +1,39 @@
 <?php
 
-$basePath = '../';
+    $basePath = '../';
 
-require_once __DIR__ . '/../includes/functions.php';
+    require_once __DIR__ . '/../includes/functions.php';
 
-require_admin();
+    require_admin();
 
-$pageTitle = 'Order Details';
+    $pageTitle = 'Order Details';
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | VALIDATE ORDER ID
 |--------------------------------------------------------------------------
 */
 
-$orderId = filter_input(
+    $orderId = filter_input(
     INPUT_GET,
     'id',
     FILTER_VALIDATE_INT
-);
+    );
 
-if (! $orderId) {
+    if (! $orderId) {
     $_SESSION['flash_error'] = 'Invalid order.';
 
     header('Location: orders.php');
     exit;
-}
+    }
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | GET ORDER
 |--------------------------------------------------------------------------
 */
 
-$stmt = $pdo->prepare("
+    $stmt = $pdo->prepare("
     SELECT
         o.*,
         u.username,
@@ -43,24 +43,24 @@ $stmt = $pdo->prepare("
     WHERE o.id = ?
 ");
 
-$stmt->execute([$orderId]);
+    $stmt->execute([$orderId]);
 
-$order = $stmt->fetch();
+    $order = $stmt->fetch();
 
-if (! $order) {
+    if (! $order) {
     $_SESSION['flash_error'] = 'Order not found.';
 
     header('Location: orders.php');
     exit;
-}
+    }
 
-/*
+    /*
 |--------------------------------------------------------------------------
 | GETTING ORDER ITEMS
 |--------------------------------------------------------------------------
 */
 
-$stmt = $pdo->prepare("
+    $stmt = $pdo->prepare("
     SELECT
         oi.quantity,
         oi.price,
@@ -71,11 +71,11 @@ $stmt = $pdo->prepare("
     WHERE oi.order_id = ?
 ");
 
-$stmt->execute([$orderId]);
+    $stmt->execute([$orderId]);
 
-$orderItems = $stmt->fetchAll();
+    $orderItems = $stmt->fetchAll();
 
-require_once __DIR__ . '/../includes/header.php';
+    require_once __DIR__ . '/../includes/header.php';
 
 ?>
 
@@ -163,13 +163,13 @@ require_once __DIR__ . '/../includes/header.php';
 
                 <select name="status" required style="width:100%; padding:12px;">
                     <?php
-                    $statuses = [
-                        'processing',
-                        'packed',
-                        'shipped',
-                        'completed',
-                        'cancelled',
-                    ];
+                        $statuses = [
+                            'processing',
+                            'packed',
+                            'shipped',
+                            'completed',
+                            'cancelled',
+                        ];
                     ?>
 
                     <?php foreach ($statuses as $status): ?>

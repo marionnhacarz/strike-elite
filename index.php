@@ -1,21 +1,21 @@
 <?php
-$basePath = '';
-require_once __DIR__ . '/includes/functions.php';
-$pageTitle = 'Home';
+    $basePath = '';
+    require_once __DIR__ . '/includes/functions.php';
+    $pageTitle = 'Home';
 
-$bestSellers = $pdo->query("SELECT * FROM products WHERE is_bestseller = 1 ORDER BY id LIMIT 4")->fetchAll();
+    $bestSellers = $pdo->query("SELECT * FROM products WHERE is_bestseller = 1 ORDER BY id LIMIT 4")->fetchAll();
 
-require_once __DIR__ . '/includes/header.php';
+    require_once __DIR__ . '/includes/header.php';
 ?>
 
-<section class="hero" style="background-image: linear-gradient(to right, #000 20%, rgba(0, 0, 0, 0.55) 55%, transparent 100%), url('<?= $bp ?>assets/images/header hero.png');">
+<section class="hero" style="background-image: linear-gradient(to right, #000 20%, rgba(0, 0, 0, 0.55) 55%, transparent 100%), url('<?php echo $bp ?>assets/images/header hero.png');">
   <div class="container hero-inner">
     <div class="hero-content">
       <h1>PLAY LIKE A <br><span class="accent">CHAMPION</span></h1>
       <p>Elite soccer gear engineered for speed, control, and performance.</p>
       <div class="hero-actions">
-        <a href="<?= $bp ?>products.php?category=soccer-boots" class="btn btn-primary">SHOP BOOTS &rarr;</a>
-        <a href="<?= $bp ?>products.php" class="btn btn-outline">EXPLORE COLLECTION</a>
+        <a href="<?php echo $bp ?>products.php?category=soccer-boots" class="btn btn-primary">SHOP BOOTS &rarr;</a>
+        <a href="<?php echo $bp ?>products.php" class="btn btn-outline">EXPLORE COLLECTION</a>
       </div>
     </div>
   </div>
@@ -82,7 +82,7 @@ require_once __DIR__ . '/includes/header.php';
   <div class="why-grid">
     <div class="why-item">
       <div class="why-icon">
-        <img src="<?= $bp ?>assets/images/icons/performance.png" alt="Elite Performance">
+        <img src="<?php echo $bp ?>assets/images/icons/performance.png" alt="Elite Performance">
       </div>
       <div class="why-text">
         <h4>ELITE PERFORMANCE</h4>
@@ -92,7 +92,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="why-item">
       <div class="why-icon">
-        <img src="<?= $bp ?>assets/images/icons/materials.png" alt="Premium Materials">
+        <img src="<?php echo $bp ?>assets/images/icons/materials.png" alt="Premium Materials">
       </div>
       <div class="why-text">
         <h4>PREMIUM MATERIALS</h4>
@@ -102,7 +102,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="why-item">
       <div class="why-icon">
-        <img src="<?= $bp ?>assets/images/icons/athletes.png" alt="Trusted By Athletes">
+        <img src="<?php echo $bp ?>assets/images/icons/athletes.png" alt="Trusted By Athletes">
       </div>
       <div class="why-text">
         <h4>TRUSTED BY ATHLETES</h4>
@@ -112,7 +112,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="why-item">
       <div class="why-icon">
-        <img src="<?= $bp ?>assets/images/icons/shipping.png" alt="Fast Shipping">
+        <img src="<?php echo $bp ?>assets/images/icons/shipping.png" alt="Fast Shipping">
       </div>
       <div class="why-text">
         <h4>FAST SHIPPING</h4>
@@ -124,7 +124,7 @@ require_once __DIR__ . '/includes/header.php';
 
   <section class="about-section container">
   <div class="about-image-col">
-    <img src="<?= $bp ?>assets/images/team-huddle.jpg" alt="Strike Elite Athletes">
+    <img src="<?php echo $bp ?>assets/images/team-huddle.jpg" alt="Strike Elite Athletes">
   </div>
 
   <div class="about-text-col">
@@ -135,7 +135,7 @@ require_once __DIR__ . '/includes/header.php';
 
   <div class="about-pillars-col">
     <div class="pillar-item">
-      <img src="<?= $bp ?>assets/images/icons/mission.png" alt="Our Mission" class="pillar-icon">
+      <img src="<?php echo $bp ?>assets/images/icons/mission.png" alt="Our Mission" class="pillar-icon">
       <div class="pillar-content">
         <h5>OUR MISSION</h5>
         <p>To inspire and equip every player to reach their full potential.</p>
@@ -143,7 +143,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="pillar-item">
-      <img src="<?= $bp ?>assets/images/icons/vision.png" alt="Our Vision" class="pillar-icon">
+      <img src="<?php echo $bp ?>assets/images/icons/vision.png" alt="Our Vision" class="pillar-icon">
       <div class="pillar-content">
         <h5>OUR VISION</h5>
         <p>To be the most trusted soccer brand worldwide.</p>
@@ -151,7 +151,7 @@ require_once __DIR__ . '/includes/header.php';
     </div>
 
     <div class="pillar-item">
-      <img src="<?= $bp ?>assets/images/icons/promise.png" alt="Our Promise" class="pillar-icon">
+      <img src="<?php echo $bp ?>assets/images/icons/promise.png" alt="Our Promise" class="pillar-icon">
       <div class="pillar-content">
         <h5>OUR PROMISE</h5>
         <p>Quality you can trust. Performance you can feel.</p>

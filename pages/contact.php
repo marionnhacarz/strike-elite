@@ -1,19 +1,27 @@
 <?php
-$basePath = '../';
-require_once __DIR__ . '/../includes/functions.php';
-$pageTitle = 'Contact Us';
+    $basePath = '../';
+    require_once __DIR__ . '/../includes/functions.php';
+    $pageTitle = 'Contact Us';
 
-$errors = [];
-$name = $email = $message = '';
+    $errors = [];
+    $name   = $email   = $message   = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = trim($_POST['name'] ?? '');
     $email   = trim($_POST['email'] ?? '');
     $message = trim($_POST['message'] ?? '');
 
-    if (empty($name)) $errors[] = 'Please enter your name.';
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Please enter a valid email.';
-    if (empty($message)) $errors[] = 'Please enter a message.';
+    if (empty($name)) {
+        $errors[] = 'Please enter your name.';
+    }
+
+    if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Please enter a valid email.';
+    }
+
+    if (empty($message)) {
+        $errors[] = 'Please enter a message.';
+    }
 
     if (empty($errors)) {
         $stmt = $pdo->prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)");
@@ -22,9 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: contact.php');
         exit;
     }
-}
+    }
 
-require_once __DIR__ . '/../includes/header.php';
+    require_once __DIR__ . '/../includes/header.php';
 ?>
 <div class="container">
   <div class="static-page">
@@ -33,11 +41,11 @@ require_once __DIR__ . '/../includes/header.php';
   </div>
 
   <div class="form-page">
-    <?php foreach ($errors as $e): ?><div class="form-error"><?= h($e) ?></div><?php endforeach; ?>
+    <?php foreach ($errors as $e): ?><div class="form-error"><?php echo h($e) ?></div><?php endforeach; ?>
     <form method="POST">
-      <div class="field"><label>Name</label><input type="text" name="name" value="<?= h($name) ?>" required></div>
-      <div class="field"><label>Email</label><input type="email" name="email" value="<?= h($email) ?>" required></div>
-      <div class="field"><label>Message</label><textarea name="message" required><?= h($message) ?></textarea></div>
+      <div class="field"><label>Name</label><input type="text" name="name" value="<?php echo h($name) ?>" required></div>
+      <div class="field"><label>Email</label><input type="email" name="email" value="<?php echo h($email) ?>" required></div>
+      <div class="field"><label>Message</label><textarea name="message" required><?php echo h($message) ?></textarea></div>
       <button type="submit" class="btn btn-primary btn-block">Send Message</button>
     </form>
   </div>

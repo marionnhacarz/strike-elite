@@ -1,24 +1,24 @@
 <?php
-$basePath = '';
-require_once __DIR__ . '/includes/functions.php';
-$pageTitle = 'My Account';
-require_login('login.php');
+    $basePath = '';
+    require_once __DIR__ . '/includes/functions.php';
+    $pageTitle = 'My Account';
+    require_login('login.php');
 
-if (($_SESSION['role'] ?? 'client') === 'admin') {
+    if (($_SESSION['role'] ?? 'client') === 'admin') {
     header('Location: admin/index.php');
     exit;
-}
+    }
 
-$stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->execute([$_SESSION['user_id']]);
-$orders = $stmt->fetchAll();
+    $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
+    $stmt->execute([$_SESSION['user_id']]);
+    $orders = $stmt->fetchAll();
 
-require_once __DIR__ . '/includes/header.php';
+    require_once __DIR__ . '/includes/header.php';
 ?>
 <div class="container">
   <div class="page-heading">
     <h1>My Account</h1>
-    <p style="color:var(--text-dim)">Signed in as <?= h(current_user()['email']) ?></p>
+    <p style="color:var(--text-dim)">Signed in as <?php echo h(current_user()['email']) ?></p>
   </div>
 
   <h3 style="color:var(--gold);margin:20px 0;">Order History</h3>
@@ -30,11 +30,11 @@ require_once __DIR__ . '/includes/header.php';
       <tbody>
         <?php foreach ($orders as $o): ?>
           <tr>
-            <td>#<?= $o['id'] ?></td>
-            <td><?= date('M d, Y', strtotime($o['created_at'])) ?></td>
-            <td><?= h(strtoupper($o['payment_method'])) ?></td>
-            <td><?= h(ucfirst($o['status'])) ?></td>
-            <td><?= price($o['total_amount']) ?></td>
+            <td>#<?php echo $o['id'] ?></td>
+            <td><?php echo date('M d, Y', strtotime($o['created_at'])) ?></td>
+            <td><?php echo h(strtoupper($o['payment_method'])) ?></td>
+            <td><?php echo h(ucfirst($o['status'])) ?></td>
+            <td><?php echo price($o['total_amount']) ?></td>
           </tr>
         <?php endforeach; ?>
       </tbody>
