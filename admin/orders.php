@@ -1,61 +1,139 @@
 <?php
 
-    $basePath = '../';
+$basePath = '../';
 
-    require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/functions.php';
 
-    require_admin();
+$pageTitle = 'Manage Orders';
 
-    $pageTitle = 'Manage Orders';
+require_admin();
 
-    /*
-|--------------------------------------------------------------------------
-| GET ALL ORDERS
-|--------------------------------------------------------------------------
+/*
+Filter orders by status
 */
 
-    $stmt = $pdo->query("
-    SELECT
-        o.id,
-        o.total_amount,
-        o.payment_method,
-        o.status,
-        o.shipping_name,
-        o.shipping_address,
-        o.created_at,
-        u.username,
-        u.email
-    FROM orders o
-    JOIN users u ON o.user_id = u.id
-    ORDER BY o.created_at DESC
-");
+$status = $_GET['status'] ?? 'all';
 
-    $orders = $stmt->fetchAll();
+$allowedStatuses = [
+    'all',
+    'pending',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled'
+];
 
-    require_once __DIR__ . '/../includes/header.php';
+if (!in_array($status, $allowedStatuses, true)) {
+    $status = 'all';
+}
 
+/*
+Get orders
+*/
+
+if ($status === 'all') {
+
+$stmt = $pdo->query("SELECT o.*, u.username, u.email FROM orders o JOIN users u ON o.user_id = u.id
+ORDER BY o.created_at DESC ");
+
+} else {
+
+$stmt = $pdo->prepare(" SELECT o.*, u.username, u.email FROM orders o JOIN users u ON o.user_id = u.id WHERE o.status = ?
+ORDER BY o.created_at DESC ");
+
+    $stmt->execute([$status]);
+}
+
+$orders = $stmt->fetchAll();
+
+
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<div class="container">
+    <div class="container">
 
     <div class="page-heading">
 
-        <h1>Manage Orders</h1>
+    <h1>Client Orders</h1>
 
-        <p style="color:var(--text-dim);">
-            View and manage customer orders.
-        </p>
-
+    <p style="color:var(--text-dim);"> Monitor and manage orders placed by customers.</p>
+    
     </div>
-
 
     <div style="margin-bottom:25px;">
 
+    <a href="index.php" class="btn btn-outline"> ← Dashboard </a>
+
+    </div>
+
+<!-- FILTERS -->
+
+    <div
+        style="
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        "
+    >
+
         <a
-            href="index.php"
-            class="btn"
+            href="orders.php"
+            class="btn <?= $status === 'all'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
         >
-            ← Admin Dashboard
+            All Orders
+        </a>
+
+
+        <a
+            href="orders.php?status=pending"
+            class="btn <?= $status === 'pending'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
+        >
+            Pending
+        </a>
+
+
+        <a
+            href="orders.php?status=processing"
+            class="btn <?= $status === 'processing'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
+        >
+            Processing
+        </a>
+
+
+        <a
+            href="orders.php?status=shipped"
+            class="btn <?= $status === 'shipped'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
+        >
+            Shipped
+        </a>
+
+
+        <a
+            href="orders.php?status=delivered"
+            class="btn <?= $status === 'delivered'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
+        >
+            Delivered
+        </a>
+
+
+        <a
+            href="orders.php?status=cancelled"
+            class="btn <?= $status === 'cancelled'
+                ? 'btn-primary'
+                : 'btn-outline' ?>"
+        >
+            Cancelled
         </a>
 
     </div>
@@ -63,10 +141,10 @@
 
     <?php if (empty($orders)): ?>
 
-        <div class="cart-summary">
+        <div class="empty-state">
 
             <p>
-                No customer orders have been placed yet.
+                No orders found.
             </p>
 
         </div>
@@ -75,126 +153,66 @@
 
         <div style="overflow-x:auto;">
 
-            <table style="
-                width:100%;
-                border-collapse:collapse;
-            ">
+        <table class="cart-table">
 
-                <thead>
+        <thead>
 
-                    <tr style="text-align:left;">
+        <tr>
+        <th>Order</th>
+        <th>Customer</th>
+        <th>Email</th>
+        <th>Date</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
 
-                        <th style="padding:12px;">
-                            Order #
-                        </th>
+<?php foreach ($orders as $order): ?>
 
-                        <th style="padding:12px;">
-                            Customer
-                        </th>
+<tr>
 
-                        <th style="padding:12px;">
-                            Payment
-                        </th>
-
-                        <th style="padding:12px;">
-                            Total
-                        </th>
-
-                        <th style="padding:12px;">
-                            Status
-                        </th>
-
-                        <th style="padding:12px;">
-                            Date
-                        </th>
-
-                        <th style="padding:12px;">
-                            Action
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                <?php foreach ($orders as $order): ?>
-
-                    <tr style="
-                        border-top:1px solid rgba(255,255,255,.1);
-                    ">
-
-                        <td style="padding:12px;">
-                            #<?php echo (int)$order['id'] ?>
-                        </td>
+    <td>
+     #<?= (int)$order['id'] ?>
+    </td>
+    <td>
+    <?= h($order['username']) ?>
+    </td>
+    
+    <td>
+    <?= h($order['email']) ?>
+    </td>
 
 
-                        <td style="padding:12px;">
+    <td>
+    <?= date(
+    'M d, Y h:i A', strtotime($order['created_at'])) ?>
+    </td>
 
-                            <strong>
-                                <?php echo h($order['shipping_name']) ?>
-                            </strong>
+    <td>
+    <?= h( strtoupper ( $order['payment_method'])) ?>
+    </td>
 
-                            <br>
+    <td>
+    <strong>
+    <?= h( ucfirst ( $order['status'])) ?>
+    </strong>
+    </td>
 
-                            <small style="color:var(--text-dim);">
-                                <?php echo h($order['email']) ?>
-                            </small>
+    <td>
+    <?= price( $order['total_amount']) ?> </td>
 
-                        </td>
-
-
-                        <td style="padding:12px;">
-
-                            <?php echo h(strtoupper($order['payment_method'])) ?>
-
-                        </td>
-
-
-                        <td style="padding:12px;">
-
-                            <?php echo price($order['total_amount']) ?>
-
-                        </td>
-
-
-                        <td style="padding:12px;">
-
-                            <?php echo h(ucfirst($order['status'])) ?>
-
-                        </td>
-
-
-                        <td style="padding:12px;">
-
-                            <?php echo h($order['created_at']) ?>
-
-                        </td>
-
-
-                        <td style="padding:12px;">
-
-                            <a
-                                href="order_view.php?id=<?php echo (int)$order['id'] ?>"
-                                class="btn btn-primary"
-                            >
-                                View
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                <?php endforeach; ?>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
+    <td>
+    <a href="order_view.php?id=<?= (int)$order['id'] ?>"
+    class="btn btn-primary">View</a> </td>
+    </tr> <?php endforeach; ?> </tbody>
+    </table> 
+</div>
     <?php endif; ?>
-
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

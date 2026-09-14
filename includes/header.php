@@ -1,10 +1,12 @@
 <?php
 
-    require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/functions.php';
 
-    $currentPage = basename($_SERVER['PHP_SELF']);
+$currentPage = basename($_SERVER['PHP_SELF']);
 
-    $bp = $basePath ?? '';
+// Pages inside subfolders such as /pages/ and /admin/
+// can set $basePath = '../' before including this header.
+$bp = $basePath ?? '';
 
 ?>
 <!DOCTYPE html>
@@ -19,9 +21,9 @@
   >
 
   <title>
-    <?php echo isset($pageTitle)
-            ? h($pageTitle) . ' | Strike Elite'
-            : 'Strike Elite | Play Like a Champion';
+    <?= isset($pageTitle)
+      ? h($pageTitle) . ' | Strike Elite'
+      : 'Strike Elite | Play Like a Champion'
     ?>
   </title>
 
@@ -37,7 +39,7 @@
 
   <link
     rel="stylesheet"
-    href="<?php echo $bp ?>assets/css/style.css"
+    href="<?= $bp ?>assets/css/style.css"
   >
 
 </head>
@@ -53,12 +55,12 @@
     ========================== -->
 
     <a
-      href="<?php echo $bp ?>index.php"
+      href="<?= $bp ?>index.php"
       class="logo"
     >
 
       <img
-        src="<?php echo $bp ?>assets/images/header logo.png"
+        src="<?= $bp ?>assets/images/header logo.png"
         alt="Strike Elite"
         class="site-logo"
       >
@@ -73,29 +75,29 @@
     <nav class="main-nav">
 
       <a
-        href="<?php echo $bp ?>index.php"
-        class="<?php echo $currentPage === 'index.php' ? 'active' : '' ?>"
+        href="<?= $bp ?>index.php"
+        class="<?= $currentPage === 'index.php' ? 'active' : '' ?>"
       >
         Home
       </a>
 
-      <a href="<?php echo $bp ?>products.php?category=soccer-boots">
+      <a href="<?= $bp ?>products.php?category=soccer-boots">
         Soccer Boots
       </a>
 
-      <a href="<?php echo $bp ?>products.php?category=jersey">
+      <a href="<?= $bp ?>products.php?category=jersey">
         Jersey
       </a>
 
-      <a href="<?php echo $bp ?>products.php?category=equipment">
+      <a href="<?= $bp ?>products.php?category=equipment">
         Equipment
       </a>
 
-      <a href="<?php echo $bp ?>pages/about.php">
+      <a href="<?= $bp ?>pages/about.php">
         About
       </a>
 
-      <a href="<?php echo $bp ?>pages/contact.php">
+      <a href="<?= $bp ?>pages/contact.php">
         Contact
       </a>
 
@@ -115,7 +117,7 @@
 
       <form
         class="search-form"
-        action="<?php echo $bp ?>products.php"
+        action="<?= $bp ?>products.php"
         method="GET"
       >
 
@@ -123,7 +125,7 @@
           type="text"
           name="q"
           placeholder="Search products..."
-          value="<?php echo h($_GET['q'] ?? '') ?>"
+          value="<?= h($_GET['q'] ?? '') ?>"
         >
 
         <button
@@ -164,138 +166,73 @@
            USER / ADMIN ACCOUNT
       ========================== -->
 
-      <?php if (is_logged_in()): ?>
+<?php if (is_logged_in()): ?>
 
-        <div class="account-menu">
+    <a
+        href="<?= $bp ?><?= is_admin()
+            ? 'admin/index.php'
+            : 'account.php' ?>"
+        class="icon-link"
+        title="<?= is_admin()
+            ? 'Admin Dashboard'
+            : 'My Account' ?>"
+    >
+        <span class="account-name">
 
+            <?php if (is_admin()): ?>
 
-          <!-- ADMIN ACCOUNT -->
+                Admin:
+                <?= h(current_user()['username']) ?>
 
-          <?php if (($_SESSION['role'] ?? 'client') === 'admin'): ?>
+            <?php else: ?>
 
-            <a
-              href="<?php echo $bp ?>admin/index.php"
-              class="icon-link"
-              title="Admin Dashboard"
-            >
+                <?= h(current_user()['username']) ?>
 
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
+            <?php endif; ?>
 
-                <circle
-                  cx="12"
-                  cy="8"
-                  r="4"
-                />
+        </span>
+    </a>
 
-                <path
-                  d="M4 21c0-4 4-6 8-6s8 2 8 6"
-                />
+    <a
+        href="<?= $bp ?>logout.php"
+        class="logout-link"
+    >
+        Logout
+    </a>
 
-              </svg>
+<?php else: ?>
 
-              <span class="account-name">
-                Admin: <?php echo h(current_user()['username']) ?>
-              </span>
+    <a
+        href="<?= $bp ?>login.php"
+        class="icon-link"
+        title="Login"
+    >
 
-            </a>
-
-
-          <!-- CLIENT ACCOUNT -->
-
-          <?php else: ?>
-
-            <a
-              href="<?php echo $bp ?>account.php"
-              class="icon-link"
-              title="My Account"
-            >
-
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-
-                <circle
-                  cx="12"
-                  cy="8"
-                  r="4"
-                />
-
-                <path
-                  d="M4 21c0-4 4-6 8-6s8 2 8 6"
-                />
-
-              </svg>
-
-              <span class="account-name">
-                <?php echo h(current_user()['username']) ?>
-              </span>
-
-            </a>
-
-          <?php endif; ?>
-
-
-          <!-- LOGOUT -->
-
-          <a
-            href="<?php echo $bp ?>logout.php"
-            class="icon-link small-link"
-            title="Logout"
-          >
-            Logout
-          </a>
-
-        </div>
-
-
-      <!-- =========================
-           NOT LOGGED IN
-      ========================== -->
-
-      <?php else: ?>
-
-        <a
-          href="<?php echo $bp ?>login.php"
-          class="icon-link"
-          title="Login"
-        >
-
-          <svg
+        <svg
             width="20"
             height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
-          >
+        >
 
             <circle
-              cx="12"
-              cy="8"
-              r="4"
+                cx="12"
+                cy="8"
+                r="4"
             />
 
             <path
-              d="M4 21c0-4 4-6 8-6s8 2 8 6"
+                d="M4 21c0-4 4-6 8-6s8 2 8 6"
             />
 
-          </svg>
+        </svg>
 
-        </a>
+        Login
+    </a>
 
-      <?php endif; ?>
+<?php endif; ?>
 
 
       <!-- =========================
@@ -303,7 +240,7 @@
       ========================== -->
 
       <a
-        href="<?php echo $bp ?>cart.php"
+        href="<?= $bp ?>cart.php"
         class="icon-link cart-link"
         title="Cart"
       >
@@ -336,7 +273,7 @@
         </svg>
 
         <span class="cart-count">
-          <?php echo cart_count() ?>
+          <?= cart_count() ?>
         </span>
 
       </a>
@@ -355,7 +292,7 @@
 <?php if ($msg = flash('flash_success')): ?>
 
   <div class="flash flash-success container">
-    <?php echo h($msg) ?>
+    <?= h($msg) ?>
   </div>
 
 <?php endif; ?>
@@ -368,7 +305,7 @@
 <?php if ($msg = flash('flash_error')): ?>
 
   <div class="flash flash-error container">
-    <?php echo h($msg) ?>
+    <?= h($msg) ?>
   </div>
 
 <?php endif; ?>

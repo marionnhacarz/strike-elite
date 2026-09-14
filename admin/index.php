@@ -1,32 +1,38 @@
 <?php
 
-    $basePath = '../';
+$basePath = '../';
 
-    require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/functions.php';
 
-    require_admin();
+$pageTitle = 'Admin Dashboard';
 
-    $pageTitle = 'Admin Dashboard';
+require_admin();
 
-    /*
-|--------------------------------------------------------------------------
-| BUSINESS STATISTICS
-|--------------------------------------------------------------------------
+/*
+Dashboard statistics
 */
 
-    $totalOrders = (int) $pdo
+$totalOrders = (int)$pdo
     ->query("SELECT COUNT(*) FROM orders")
     ->fetchColumn();
 
-    $processingOrders = (int) $pdo
-    ->query("SELECT COUNT(*) FROM orders WHERE status = 'processing'")
+$processingOrders = (int)$pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM orders
+        WHERE status IN ('pending', 'processing')
+    ")
     ->fetchColumn();
 
-    $completedOrders = (int) $pdo
-    ->query("SELECT COUNT(*) FROM orders WHERE status = 'completed'")
+$totalClients = (int)$pdo
+    ->query("
+        SELECT COUNT(*)
+        FROM users
+        WHERE role = 'client'
+    ")
     ->fetchColumn();
 
-    $totalRevenue = (float) $pdo
+$totalSales = (float)$pdo
     ->query("
         SELECT COALESCE(SUM(total_amount), 0)
         FROM orders
@@ -34,32 +40,18 @@
     ")
     ->fetchColumn();
 
-    /*
-|--------------------------------------------------------------------------
-| RECENT ORDERS
-|--------------------------------------------------------------------------
+
+/*
+Recent orders
 */
 
-    $stmt = $pdo->query("
-    SELECT
-        o.id,
-        o.total_amount,
-        o.payment_method,
-        o.status,
-        o.shipping_name,
-        o.created_at,
-        u.username,
-        u.email
-    FROM orders o
-    JOIN users u ON o.user_id = u.id
-    ORDER BY o.created_at DESC
-    LIMIT 5
-");
+$stmt = $pdo->query(" SELECT o.id, o.total_amount, o.payment_method, o.status, o.created_at, u.username
+    FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 5");
 
-    $recentOrders = $stmt->fetchAll();
+$recentOrders = $stmt->fetchAll();
 
-    require_once __DIR__ . '/../includes/header.php';
 
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container">
@@ -69,79 +61,97 @@
         <h1>Admin Dashboard</h1>
 
         <p style="color:var(--text-dim);">
-            Welcome, <?php echo h(current_user()['username']) ?>.
-            Monitor Strike Elite's orders and sales here.
+            Welcome,
+            <?= h(current_user()['username']) ?>.
         </p>
 
     </div>
 
 
-    <!-- BUSINESS STATISTICS -->
+    <!-- DASHBOARD STATS -->
 
-    <div style="
-        display:grid;
-        grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-        gap:20px;
-        margin:30px 0;
-    ">
+    <div
+        style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+            gap:20px;
+            margin-top:30px;
+        "
+    >
 
-        <div class="cart-summary" style="margin:0;">
-            <h3>Total Orders</h3>
-
-            <p style="
-                font-size:32px;
-                font-weight:bold;
-                color:var(--gold);
-            ">
-                <?php echo $totalOrders ?>
+        <div
+            style="
+                background:var(--card);
+                padding:24px;
+                border:1px solid var(--border);
+            "
+        >
+            <p style="color:var(--text-dim);">
+                Total Orders
             </p>
+
+            <h2 style="color:var(--gold);">
+                <?= $totalOrders ?>
+            </h2>
         </div>
 
 
-        <div class="cart-summary" style="margin:0;">
-            <h3>Processing</h3>
-
-            <p style="
-                font-size:32px;
-                font-weight:bold;
-                color:var(--gold);
-            ">
-                <?php echo $processingOrders ?>
+        <div
+            style="
+                background:var(--card);
+                padding:24px;
+                border:1px solid var(--border);
+            "
+        >
+            <p style="color:var(--text-dim);">
+                Pending / Processing
             </p>
+
+            <h2 style="color:var(--gold);">
+                <?= $processingOrders ?>
+            </h2>
         </div>
 
 
-        <div class="cart-summary" style="margin:0;">
-            <h3>Completed</h3>
-
-            <p style="
-                font-size:32px;
-                font-weight:bold;
-                color:var(--gold);
-            ">
-                <?php echo $completedOrders ?>
+        <div
+            style="
+                background:var(--card);
+                padding:24px;
+                border:1px solid var(--border);
+            "
+        >
+            <p style="color:var(--text-dim);">
+                Clients
             </p>
+
+            <h2 style="color:var(--gold);">
+                <?= $totalClients ?>
+            </h2>
         </div>
 
 
-        <div class="cart-summary" style="margin:0;">
-            <h3>Total Sales</h3>
-
-            <p style="
-                font-size:28px;
-                font-weight:bold;
-                color:var(--gold);
-            ">
-                <?php echo price($totalRevenue) ?>
+        <div
+            style="
+                background:var(--card);
+                padding:24px;
+                border:1px solid var(--border);
+            "
+        >
+            <p style="color:var(--text-dim);">
+                Order Value
             </p>
+
+            <h2 style="color:var(--gold);">
+                <?= price($totalSales) ?>
+            </h2>
         </div>
 
     </div>
 
 
-    <!-- ADMIN ACTIONS -->
+    <!-- BUTTONS -->
 
-    <div style="margin:30px 0;">
+    <div style="margin-top:30px;">
 
         <a
             href="orders.php"
@@ -152,15 +162,15 @@
 
         <a
             href="../index.php"
-            class="btn"
+            class="btn btn-outline"
             style="margin-left:10px;"
         >
-            View Store
+            Back to Store
         </a>
 
         <a
             href="../logout.php"
-            class="btn"
+            class="btn btn-outline"
             style="margin-left:10px;"
         >
             Logout
@@ -171,118 +181,78 @@
 
     <!-- RECENT ORDERS -->
 
-    <div style="margin-top:40px;">
+    <div style="margin-top:45px;">
 
-        <h2>Recent Orders</h2>
+        <h2>
+            Recent Orders
+        </h2>
 
         <?php if (empty($recentOrders)): ?>
 
-            <p style="color:var(--text-dim);">
-                No orders have been placed yet.
-            </p>
+        <p style="color:var(--text-dim); margin-top:20px;"
+            >
+            No client orders have been placed yet.</p>
 
         <?php else: ?>
 
             <div style="overflow-x:auto;">
+        <table class="cart-table"style="margin-top:20px;"
+                >
+        <thead>
 
-                <table style="
-                    width:100%;
-                    border-collapse:collapse;
-                    margin-top:20px;
-                ">
+        <tr>
+        <th>Order</th>
+        <th>Customer</th>
+        <th>Date</th>
+        <th>Payment</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th></th>
+        </tr>
+        </thead>
+        
+        <tbody>
+        <?php foreach ($recentOrders as $order): ?>
+        <tr>
 
-                    <thead>
+        <td>
+        #<?= (int)$order['id'] ?>
+        </td>
+        <td>
+        <?= h($order['username']) ?>
+        </td>
 
-    <tr style="text-align:left;">
+        <td>
+        <?= date('M d, Y h:i A', strtotime($order['created_at'])) ?>
+        </td>
 
-    <th style="padding:12px;">
-    Order
-    </th>
+        <td>
+        <?= h (strtoupper($order['payment_method'])) ?>
+        </td>
+        <td>
+        <?= h (ucfirst($order['status'])) ?>
+        </td>
+        <td>
+        <?= price($order['total_amount']) ?>
+        </td>
 
-     <th style="padding:12px;">
-       Customer
-     </th>
-     <th style="padding:12px;">
-     Total
-                            </th>
+        <td>
 
-                            <th style="padding:12px;">
-                                Status
-                            </th>
+        <a href="order_view.php?id=<?= (int)$order['id'] ?>"class="btn btn-outline"
+        >View
+        </a>
 
-                            <th style="padding:12px;">
-                                Date
-                            </th>
+        </td>
+        </tr>
 
-                            <th style="padding:12px;">
-                                Action
-                            </th>
+        <?php endforeach; ?>
+        </tbody>
 
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                    <?php foreach ($recentOrders as $order): ?>
-
-                        <tr style="
-                            border-top:1px solid rgba(255,255,255,.1);
-                        ">
-
-                            <td style="padding:12px;">
-                                #<?php echo (int)$order['id'] ?>
-                            </td>
-
-                            <td style="padding:12px;">
-
-                                <?php echo h($order['shipping_name']) ?>
-
-                                <br>
-
-                                <small style="color:var(--text-dim);">
-                                    <?php echo h($order['email']) ?>
-                                </small>
-
-                            </td>
-
-                            <td style="padding:12px;">
-                                <?php echo price($order['total_amount']) ?>
-                            </td>
-
-                            <td style="padding:12px;">
-                                <?php echo h(ucfirst($order['status'])) ?>
-                            </td>
-
-                            <td style="padding:12px;">
-                                <?php echo h($order['created_at']) ?>
-                            </td>
-
-                            <td style="padding:12px;">
-
-                                <a
-                                    href="order_view.php?id=<?php echo (int)$order['id'] ?>"
-                                    class="btn"
-                                >
-                                    View
-                                </a>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endforeach; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
+        </table>
+        </div>
         <?php endif; ?>
-
-    </div>
-
-</div>
-
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+        </div>
+        </div>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>

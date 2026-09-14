@@ -5,9 +5,7 @@ require_once __DIR__ . '/../includes/functions.php';
 require_admin();
 
 /*
-|--------------------------------------------------------------------------
-| ONLY ALLOW POST REQUESTS
-|--------------------------------------------------------------------------
+Only accept POST requests
 */
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -16,50 +14,51 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| VALIDATE ORDER ID
-|--------------------------------------------------------------------------
-*/
+$orderId =
+    (int)($_POST['order_id'] ?? 0);
 
-$orderId = filter_input(
-    INPUT_POST,
-    'order_id',
-    FILTER_VALIDATE_INT
-);
+$status =
+    trim($_POST['status'] ?? '');
 
-$status = $_POST['status'] ?? '';
-
-/*
-|--------------------------------------------------------------------------
-| ALLOWED ORDER STATUSES
-|--------------------------------------------------------------------------
-*/
 
 $allowedStatuses = [
+    'pending',
     'processing',
-    'packed',
     'shipped',
-    'completed',
-    'cancelled',
+    'delivered',
+    'cancelled'
 ];
 
-if (
-    ! $orderId ||
-    ! in_array($status, $allowedStatuses, true)
-) {
 
-    $_SESSION['flash_error'] =
-        'Invalid order update.';
+/*
+Validate order
+*/
+
+if ($orderId <= 0) {
+
+    flash(
+        'flash_error',
+        'Invalid order.'
+    );
 
     header('Location: orders.php');
     exit;
 }
 
+
 /*
-|--------------------------------------------------------------------------
-| CHECK THAT ORDER EXISTS
-|--------------------------------------------------------------------------
+Validate status
+*/
+
+if (!in_array($status, $allowedStatuses, true)) {
+
+    flash('flash_error', 'Invalid order status.');
+    header('Location: order_view.php?id=' . $orderId );
+ exit;
+}
+
+/*
+Make sure order exists
 */
 
 $stmt = $pdo->prepare("
@@ -70,19 +69,17 @@ $stmt = $pdo->prepare("
 
 $stmt->execute([$orderId]);
 
-if (! $stmt->fetch()) {
 
-    $_SESSION['flash_error'] =
-        'Order not found.';
+if (!$stmt->fetch()) {
 
-    header('Location: orders.php');
+    flash( 'flash_error', 'Order not found.' );
+   header('Location: orders.php');
     exit;
 }
 
+
 /*
-|--------------------------------------------------------------------------
-| UPDATE ORDER
-|--------------------------------------------------------------------------
+Update status
 */
 
 $stmt = $pdo->prepare("
@@ -93,19 +90,12 @@ $stmt = $pdo->prepare("
 
 $stmt->execute([
     $status,
-    $orderId,
+    $orderId
 ]);
 
-$_SESSION['flash_success'] =
-'Order #' .
-$orderId .
-' status updated to ' .
-ucfirst($status) .
-    '.';
 
-header(
-    'Location: order_view.php?id=' .
-    $orderId
-);
+flash( 'flash_success', 'Order #' . $orderId .
+ ' status updated to ' . ucfirst($status) . '.');
 
+header( 'Location: order_view.php?id=' . $orderId);
 exit;

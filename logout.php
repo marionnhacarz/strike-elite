@@ -20,8 +20,10 @@ if (ini_get('session.use_cookies')) {
 }
 
 session_destroy();
+header('Location: login.php');
+exit;
 
-session_start();
+
 
 flash('flash_success', 'You have been logged out.');
 

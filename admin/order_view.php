@@ -1,216 +1,377 @@
 <?php
 
-    $basePath = '../';
+$basePath = '../';
 
-    require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/functions.php';
 
-    require_admin();
+$pageTitle = 'Order Details';
 
-    $pageTitle = 'Order Details';
+require_admin();
 
-    /*
-|--------------------------------------------------------------------------
-| VALIDATE ORDER ID
-|--------------------------------------------------------------------------
+
+$orderId = (int)($_GET['id'] ?? 0);
+
+/*
+Get order + customer
 */
 
-    $orderId = filter_input(
-    INPUT_GET,
-    'id',
-    FILTER_VALIDATE_INT
-    );
-
-    if (! $orderId) {
-    $_SESSION['flash_error'] = 'Invalid order.';
-
-    header('Location: orders.php');
-    exit;
-    }
-
-    /*
-|--------------------------------------------------------------------------
-| GET ORDER
-|--------------------------------------------------------------------------
-*/
-
-    $stmt = $pdo->prepare("
-    SELECT
-        o.*,
-        u.username,
-        u.email
+$stmt = $pdo->prepare(" SELECT o.*, u.username, u.email
     FROM orders o
-    JOIN users u ON o.user_id = u.id
+    JOIN users u
+    ON o.user_id = u.id
     WHERE o.id = ?
+    LIMIT 1
 ");
 
-    $stmt->execute([$orderId]);
+$stmt->execute([$orderId]);
 
-    $order = $stmt->fetch();
+$order = $stmt->fetch();
 
-    if (! $order) {
-    $_SESSION['flash_error'] = 'Order not found.';
 
+if (!$order) {
+
+    flash('flash_error', 'Order not found.');
     header('Location: orders.php');
     exit;
-    }
+}
 
-    /*
-|--------------------------------------------------------------------------
-| GETTING ORDER ITEMS
-|--------------------------------------------------------------------------
+
+/*
+Get order items
 */
 
-    $stmt = $pdo->prepare("
-    SELECT
-        oi.quantity,
-        oi.price,
-        p.name,
-        p.image
+$itemStmt = $pdo->prepare(" SELECT oi.*, p.name, p.image
     FROM order_items oi
-    JOIN products p ON oi.product_id = p.id
+    JOIN products p
+    ON oi.product_id = p.id
     WHERE oi.order_id = ?
+    ORDER BY oi.id ASC
 ");
 
-    $stmt->execute([$orderId]);
+$itemStmt->execute([$orderId]);
 
-    $orderItems = $stmt->fetchAll();
+$items = $itemStmt->fetchAll();
 
-    require_once __DIR__ . '/../includes/header.php';
 
-?>
-
+require_once __DIR__ . '/../includes/header.php';?>
 <div class="container">
-
     <div class="page-heading">
         <h1>
-            Order #<?php echo (int) $order['id']; ?>
+        Order #<?= (int)$order['id'] ?>
         </h1>
-
-        <p style="color:var(--text-dim);">
-            <?php echo h($order['created_at']); ?>
+        <p style="color:var(--text-dim);"> Placed on <?= date('F d, Y h:i A',
+             strtotime($order['created_at']) ) ?>
         </p>
+
     </div>
 
     <div style="margin-bottom:25px;">
-        <a href="orders.php" class="btn">
+
+        <a
+            href="orders.php"
+            class="btn btn-outline"
+        >
             ← Back to Orders
         </a>
+
     </div>
 
-    <!-- CUSTOMER INFO -->
-    <div class="cart-summary" style="margin-bottom:25px;">
-        <h3>Customer Information</h3>
 
-        <div class="row">
-            <span>Name</span>
-            <span>
-                <?php echo h($order['shipping_name']); ?>
-            </span>
+    <div style=" display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap:25px;
+            margin-bottom:35px;
+        " >
+
+        <!-- CUSTOMER -->
+
+     <div style=" background:var(--card);
+     border:1px solid var(--border);padding:25px;" >
+    <h3 style="color:var(--gold); margin-bottom:15px;">
+        Customer Information
+     </h3>
+         <p>
+         <strong>Username:</strong>
+         <?= h($order['username']) ?>
+         </p>
+
+         <p>
+            <strong>Email:</strong>
+            <?= h($order['email']) ?>
+            </p>
+
+            <p>
+                <strong>Shipping Name:</strong>
+                <?= h($order['shipping_name']) ?>
+            </p>
+
+            <p>
+             <strong>Shipping Address:</strong>
+             <?= nl2br(
+             h($order['shipping_address'])
+                ) ?>
+            </p>
+
         </div>
 
-        <div class="row">
-            <span>Email</span>
-            <span>
-                <?php echo h($order['email']); ?>
-            </span>
-        </div>
 
-        <div class="row">
-            <span>Shipping Address</span>
-            <span>
-                <?php echo h($order['shipping_address']); ?>
-            </span>
-        </div>
-    </div>
+        <!-- ORDER INFO -->
 
-    <!-- ORDER INFO -->
-    <div class="cart-summary" style="margin-bottom:25px;">
-        <h3>Order Information</h3>
+        <div
+            style="
+                background:var(--card);
+                border:1px solid var(--border);
+                padding:25px;
+            "
+        >
 
-        <div class="row">
-            <span>Payment Method</span>
-            <span>
-                <?php echo h(strtoupper($order['payment_method'])); ?>
-            </span>
-        </div>
+            <h3
+                style="
+                    color:var(--gold);
+                    margin-bottom:15px;
+                "
+            >
+                Order Information
+            </h3>
 
-        <div class="row">
-            <span>Current Status</span>
-            <span>
-                <?php echo h(ucfirst($order['status'])); ?>
-            </span>
-        </div>
 
-        <div class="row total">
-            <span>Total</span>
-            <span>
-                <?php echo price($order['total_amount']); ?>
-            </span>
-        </div>
-    </div>
+            <p>
+                <strong>Payment:</strong>
 
-    <!-- UPDATE ORDER STATUS -->
-    <div class="cart-summary" style="margin-bottom:25px;">
-        <h3>Update Order Status</h3>
+                <?= h(
+                    strtoupper(
+                        $order['payment_method']
+                    )
+                ) ?>
+            </p>
 
-        <form method="POST" action="order_update.php">
-            <input type="hidden" name="order_id" value="<?php echo (int) $order['id']; ?>">
 
-            <div class="field">
-                <label>
-                    Order Status
-                </label>
+            <p>
+                <strong>Current Status:</strong>
 
-                <select name="status" required style="width:100%; padding:12px;">
-                    <?php
+                <?= h(
+                    ucfirst(
+                        $order['status']
+                    )
+                ) ?>
+            </p>
+
+
+            <p>
+                <strong>Total:</strong>
+
+                <span style="color:var(--gold);">
+                    <?= price(
+                        $order['total_amount']
+                    ) ?>
+                </span>
+
+            </p>
+
+
+            <!-- UPDATE STATUS -->
+
+            <form
+                method="POST"
+                action="order_update.php"
+                style="margin-top:20px;"
+            >
+
+                <input
+                    type="hidden"
+                    name="order_id"
+                    value="<?= (int)$order['id'] ?>"
+                >
+
+
+                <div class="field">
+
+                    <label>
+                        Update Order Status
+                    </label>
+
+                    <select
+                        name="status"
+                        required
+                        style="
+                            width:100%;
+                            padding:12px;
+                            background:#161616;
+                            color:#fff;
+                            border:1px solid #333;
+                        "
+                    >
+
+                        <?php
                         $statuses = [
+                            'pending',
                             'processing',
-                            'packed',
                             'shipped',
-                            'completed',
-                            'cancelled',
+                            'delivered',
+                            'cancelled'
                         ];
-                    ?>
+                        ?>
 
-                    <?php foreach ($statuses as $status): ?>
-                        <option value="<?php echo h($status); ?>" <?php echo $order['status'] === $status ? 'selected' : ''; ?>>
-                            <?php echo h(ucfirst($status)); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
 
-            <button type="submit" class="btn btn-primary">
-                Update Status
-            </button>
-        </form>
+                        <?php foreach ($statuses as $status): ?>
+
+                            <option
+                                value="<?= h($status) ?>"
+                                <?= $order['status'] === $status
+                                    ? 'selected'
+                                    : '' ?>
+                            >
+                                <?= h(
+                                    ucfirst($status)
+                                ) ?>
+                            </option>
+
+                        <?php endforeach; ?>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Update Status
+                </button>
+
+            </form>
+
+        </div>
+
     </div>
+
 
     <!-- ORDER ITEMS -->
-    <div class="cart-summary">
-        <h3>Products Ordered</h3>
 
-        <?php foreach ($orderItems as $item): ?>
-            <div class="row">
-                <span>
-                    <?php echo h($item['name']); ?>
-                    × <?php echo (int) $item['quantity']; ?>
-                </span>
+    <h2 style="margin-bottom:20px;">
+        Ordered Products
+    </h2>
 
-                <span>
-                    <?php echo price($item['price'] * $item['quantity']); ?>
-                </span>
-            </div>
-        <?php endforeach; ?>
 
-        <div class="row total">
-            <span>Order Total</span>
-            <span>
-                <?php echo price($order['total_amount']); ?>
-            </span>
+    <?php if (empty($items)): ?>
+
+        <p style="color:var(--text-dim);">
+            This order has no items.
+        </p>
+
+    <?php else: ?>
+
+        <div style="overflow-x:auto;">
+
+            <table class="cart-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Product</th>
+                        <th>Size</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                <?php foreach ($items as $item): ?>
+
+                    <tr>
+
+                        <td>
+
+                            <div class="cart-product">
+
+                                <img
+                                    src="../assets/images/products/<?= h($item['image']) ?>"
+                                    alt="<?= h($item['name']) ?>"
+                                >
+
+                                <span>
+                                    <?= h($item['name']) ?>
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <?php if (!empty($item['size'])): ?>
+
+                                <?= h($item['size']) ?>
+
+                            <?php else: ?>
+
+                                —
+
+                            <?php endif; ?>
+
+                        </td>
+
+
+                        <td>
+                            <?= price($item['price']) ?>
+                        </td>
+
+
+                        <td>
+                            <?= (int)$item['quantity'] ?>
+                        </td>
+
+
+                        <td>
+
+                            <?= price(
+                                $item['price']
+                                *
+                                $item['quantity']
+                            ) ?>
+
+                        </td>
+
+                    </tr>
+
+                <?php endforeach; ?>
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr>
+
+                        <th colspan="4">
+                            Order Total
+                        </th>
+
+                        <th style="color:var(--gold);">
+
+                            <?= price(
+                                $order['total_amount']
+                            ) ?>
+
+                        </th>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
         </div>
-    </div>
+
+    <?php endif; ?>
 
 </div>
 
-<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>
