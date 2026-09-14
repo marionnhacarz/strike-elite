@@ -51,6 +51,21 @@ require_once __DIR__ . '/../includes/header.php';
 ?>
 
     <div class="container">
+        <div class="admin-nav">
+
+    <a href="index.php">
+        Dashboard
+    </a>
+
+    <a href="orders.php">
+        Orders
+    </a>
+
+    <a href="../logout.php">
+        Logout
+    </a>
+
+</div>
 
     <div class="page-heading">
 

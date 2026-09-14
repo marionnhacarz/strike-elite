@@ -4,7 +4,13 @@ require_once __DIR__ . '/includes/functions.php';
 $pageTitle = 'Login';
 
 if (is_logged_in()) {
-    header('Location: account.php');
+
+    if (is_admin()) {
+        header('Location: admin/index.php');
+    } else {
+        header('Location: account.php');
+    }
+
     exit;
 }
 
@@ -35,18 +41,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['user_id']  = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['email']    = $user['email'];
-            flash('flash_success', 'Welcome back, ' . $user['username'] . '!');
-            header('Location: index.php');
-            exit;
+if ($user && password_verify($password, $user['password_hash'])) {
 
-        } else {
-            $errors[] = 'Incorrect email or password.';
-        }
+    session_regenerate_id(true);
+
+    $_SESSION['user_id']  = $user['id'];
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['email']    = $user['email'];
+    $_SESSION['role']     = $user['role'];
+
+    flash(
+        'flash_success',
+        'Welcome back, ' . $user['username'] . '!'
+    );
+    if (
+    $user['role'] === 'client' &&
+    !empty($_SESSION['after_login'])
+) {
+    $redirect = $_SESSION['after_login'];
+
+    unset($_SESSION['after_login']);
+
+    header('Location: ' . $redirect);
+    exit;
+}
+
+    if ($user['role'] === 'admin') {
+
+        header('Location: admin/index.php');
+
+    } else {
+
+        header('Location: account.php');
     }
+
+    exit;
+
+} else {
+
+    $errors[] = 'Incorrect email or password.';
+}
+}
 }
 
     require_once __DIR__ . '/includes/header.php';
